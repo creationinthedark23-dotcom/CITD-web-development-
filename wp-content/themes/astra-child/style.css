@@ -1,0 +1,31 @@
+/*
+Theme Name:   Astra Child — The Creation Journal
+Theme URI:    https://creationinthedark.com/journal/
+Description:  Astra child theme powering THE CREATION JOURNAL, the digital publication of Creation in the Dark Holdings. Provides the "publication" custom post type, the /journal/ archive, the long-form article experience, and the complete editorial design system. Vanilla CSS and vanilla JavaScript only — no page builders, no CSS frameworks.
+Author:       Creation in the Dark Holdings
+Author URI:   https://creationinthedark.com/
+Template:     astra
+Version:      1.0.0
+Requires at least: 6.0
+Requires PHP: 7.4
+License:      GNU General Public License v2 or later
+License URI:  https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain:  citd-journal
+Tags:         editorial, publication, magazine, accessibility-ready, translation-ready
+*/
+
+/*
+ * ---------------------------------------------------------------------------
+ * This file intentionally contains no styles.
+ *
+ * WordPress requires a style.css in every theme for the header block above.
+ * All presentation for The Creation Journal lives in dedicated, versioned
+ * stylesheets that are only loaded where they are needed:
+ *
+ *   assets/css/journal.css        — the complete design system (screen)
+ *   assets/css/journal-print.css  — the print edition (print)
+ *   assets/css/journal-admin.css  — editorial screens inside wp-admin
+ *
+ * See inc/enqueue.php for the loading strategy.
+ * ---------------------------------------------------------------------------
+ */

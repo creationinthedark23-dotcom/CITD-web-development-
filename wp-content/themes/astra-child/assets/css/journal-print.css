@@ -1,0 +1,509 @@
+@charset "UTF-8";
+/**
+ * THE CREATION JOURNAL — print edition
+ *
+ * Loaded with media="print". The goal is a document that reads as a properly
+ * typeset offprint: one column, serif throughout, black on white, with the
+ * interface removed and link destinations made visible.
+ */
+
+@page {
+	size: A4 portrait;
+	margin: 20mm 18mm 22mm;
+}
+
+@page :first {
+	margin-top: 16mm;
+}
+
+/* --------------------------------------------------------------------------
+   Reset the screen palette. Printing a dark theme wastes ink and reads badly.
+   -------------------------------------------------------------------------- */
+
+:root,
+:root[data-theme="dark"],
+:root[data-theme="light"] {
+	--paper: #ffffff;
+	--paper-sunk: #ffffff;
+	--paper-raised: #ffffff;
+	--paper-invert: #ffffff;
+	--ink: #000000;
+	--ink-strong: #000000;
+	--ink-muted: #262626;
+	--ink-faint: #4a4a4a;
+	--ink-invert: #000000;
+	--ink-invert-muted: #262626;
+	--ink-invert-faint: #4a4a4a;
+	--line: #b0b0b0;
+	--line-strong: #6a6a6a;
+	--accent: #000000;
+	--accent-bright: #000000;
+	--accent-soft: transparent;
+	--accent-hairline: #8a8a8a;
+	--shadow-sm: none;
+	--shadow-md: none;
+	--shadow-lg: none;
+}
+
+body.journal {
+	background: #fff !important;
+	color: #000 !important;
+	font-family: "Newsreader", Georgia, "Times New Roman", serif;
+	font-size: 10.5pt;
+	line-height: 1.5;
+	overflow: visible;
+}
+
+/* --------------------------------------------------------------------------
+   Remove everything that is interface rather than content.
+   -------------------------------------------------------------------------- */
+
+.journal-masthead,
+.journal-drawer,
+.journal-search,
+.journal-progress,
+.journal-toc,
+.journal-share,
+.journal-newsletter,
+.journal-footer__social,
+.journal-footer__columns,
+.journal-totop,
+.journal-toast,
+.journal-skip-link,
+.journal-pagination,
+.journal-adjacent,
+.journal-section--related,
+.journal-section--topics,
+.journal-hero__cta,
+.journal-empty__actions,
+.journal-articlemeta__remaining,
+.journal-card__media,
+.journal-featured__media,
+.journal-breadcrumbs {
+	display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   Layout: single column, no sticky positioning, no viewport units.
+   -------------------------------------------------------------------------- */
+
+.journal-shell,
+.journal-shell--wide,
+.journal-layout__shell,
+.journal-footer__inner,
+.journal-masthead__inner {
+	max-width: none !important;
+	width: auto !important;
+	padding-inline: 0 !important;
+	margin-inline: 0 !important;
+}
+
+.journal-layout__shell,
+.journal-layout--with-rail .journal-layout__shell {
+	display: block !important;
+}
+
+.journal-body,
+.journal-toc,
+.journal-articlehead,
+.journal-author {
+	max-width: none !important;
+	margin-inline: 0 !important;
+}
+
+.journal-section,
+.journal-layout,
+.journal-hero,
+.journal-articlehero,
+.journal-summary {
+	padding-block: 0 !important;
+	border: 0 !important;
+}
+
+.journal-section--author {
+	background: none !important;
+	border-top: 0.5pt solid #b0b0b0 !important;
+	padding-top: 8mm !important;
+	margin-top: 10mm !important;
+}
+
+/* --------------------------------------------------------------------------
+   Masthead line reinstated as a printed running head.
+   -------------------------------------------------------------------------- */
+
+.journal-article__root::before {
+	content: "The Creation Journal · Creation in the Dark Holdings";
+	display: block;
+	margin-bottom: 8mm;
+	padding-bottom: 2mm;
+	border-bottom: 1pt solid #000;
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 7.5pt;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   Typography
+   -------------------------------------------------------------------------- */
+
+.journal-articlehead__title,
+.journal-hero__title {
+	font-family: "Fraunces", Georgia, serif;
+	font-size: 26pt;
+	line-height: 1.05;
+	letter-spacing: -0.02em;
+	margin-bottom: 4mm;
+	max-width: none;
+}
+
+.journal-articlehead__deck,
+.journal-hero__standfirst {
+	font-size: 13pt;
+	line-height: 1.4;
+	color: #262626 !important;
+	max-width: none;
+	margin-bottom: 4mm;
+}
+
+.journal-articlehead__eyebrow {
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 8pt;
+	letter-spacing: 0.16em;
+	color: #000 !important;
+}
+
+.journal-rule {
+	background: #000 !important;
+}
+
+.journal-articlemeta {
+	display: block;
+	margin: 0 0 8mm;
+	padding: 2mm 0;
+	border-top: 0.5pt solid #b0b0b0;
+	border-bottom: 0.5pt solid #b0b0b0;
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 8.5pt;
+}
+
+.journal-articlemeta__author img,
+.journal-author__portrait {
+	display: none !important;
+}
+
+.journal-articlemeta__facts {
+	display: block;
+	margin-top: 1mm;
+}
+
+.journal-articlemeta__facts > * {
+	margin-right: 4mm;
+}
+
+.journal-body {
+	font-size: 10.5pt;
+	line-height: 1.52;
+	text-align: left;
+	hyphens: auto;
+}
+
+.journal-body > * + * {
+	margin-top: 3mm;
+}
+
+.journal-body h2 {
+	font-family: "Fraunces", Georgia, serif;
+	font-size: 15pt;
+	margin-top: 8mm;
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+.journal-body h2::before {
+	display: none;
+}
+
+.journal-body h3 {
+	font-family: "Fraunces", Georgia, serif;
+	font-size: 12pt;
+	margin-top: 6mm;
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+.journal-body h4 {
+	font-size: 10.5pt;
+	margin-top: 5mm;
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+.journal-body p {
+	orphans: 3;
+	widows: 3;
+}
+
+.journal-body .journal-opening::first-letter {
+	font-size: 3.2em;
+	line-height: 0.82;
+}
+
+.journal-body ul > li::before {
+	background: #000 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Executive summary keeps its prominence but loses the fill.
+   -------------------------------------------------------------------------- */
+
+.journal-summary__inner {
+	display: block;
+	background: none !important;
+	border: 0.5pt solid #6a6a6a !important;
+	border-left-width: 2pt !important;
+	border-radius: 0;
+	padding: 5mm;
+	margin-bottom: 8mm;
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+.journal-summary__title {
+	font-size: 12pt;
+	margin-bottom: 3mm;
+}
+
+.journal-summary__list {
+	display: block;
+}
+
+.journal-summary__item {
+	display: block;
+	margin-bottom: 2.5mm;
+}
+
+.journal-summary__number {
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 8pt;
+	margin-right: 2mm;
+}
+
+/* --------------------------------------------------------------------------
+   Editorial furniture
+   -------------------------------------------------------------------------- */
+
+.journal-pullquote,
+.journal-pullquote--left,
+.journal-pullquote--right {
+	float: none !important;
+	width: auto !important;
+	margin: 6mm 0 !important;
+	padding: 3mm 0;
+	border-top: 0.5pt solid #b0b0b0;
+	border-bottom: 0.5pt solid #b0b0b0;
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+.journal-pullquote__mark {
+	display: none;
+}
+
+.journal-pullquote__quote p {
+	font-size: 13pt;
+	line-height: 1.25;
+}
+
+.journal-stat,
+.journal-note {
+	background: none !important;
+	border: 0.5pt solid #6a6a6a !important;
+	border-radius: 0;
+	padding: 4mm;
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+.journal-body figure,
+.journal-table,
+.journal-body pre {
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+.journal-table {
+	overflow: visible !important;
+	border: 0.5pt solid #6a6a6a;
+}
+
+.journal-body table {
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 8.5pt;
+}
+
+.journal-body thead th {
+	position: static;
+	background: none !important;
+	border-bottom: 1pt solid #000;
+}
+
+.journal-body figcaption,
+.journal-body .wp-caption-text,
+.journal-articlehero__credit {
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 8pt;
+	color: #4a4a4a !important;
+}
+
+.journal-articlehero__img,
+.journal-body img {
+	max-width: 100% !important;
+	border-radius: 0 !important;
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+.journal-articlehero--immersive .journal-articlehero__canvas {
+	display: block;
+	min-height: 0;
+}
+
+.journal-articlehero--immersive .journal-articlehero__figure {
+	position: static;
+	inset: auto;
+}
+
+.journal-articlehero--immersive .journal-articlehero__img {
+	height: auto;
+	max-height: 90mm;
+	object-fit: contain;
+}
+
+.journal-articlehero__scrim,
+.journal-articlehero__overlay {
+	position: static;
+	background: none !important;
+	padding: 0 !important;
+}
+
+.journal-articlehero--immersive .journal-articlehead__title,
+.journal-articlehero--immersive .journal-articlehead__deck,
+.journal-articlehero--immersive .journal-articlehead__eyebrow {
+	color: #000 !important;
+}
+
+.journal-articlehero--immersive .journal-articlehero__credit {
+	position: static;
+	color: #4a4a4a !important;
+	text-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   Links: show the destination so the printed page remains useful.
+   -------------------------------------------------------------------------- */
+
+.journal-body a,
+.journal-references__link {
+	color: #000 !important;
+	text-decoration: underline;
+}
+
+.journal-body a[href^="http"]::after,
+.journal-references__link::after {
+	content: " (" attr(href) ")";
+	font-family: "Inter", Arial, sans-serif;
+	font-size: 7.5pt;
+	color: #4a4a4a;
+	word-break: break-all;
+}
+
+.journal-link--external::after {
+	content: " (" attr(href) ")" !important;
+	vertical-align: baseline;
+}
+
+.journal-body a[href^="#"]::after {
+	content: "";
+}
+
+.journal-references__link .journal-icon {
+	display: none;
+}
+
+/* --------------------------------------------------------------------------
+   References and author
+   -------------------------------------------------------------------------- */
+
+.journal-references {
+	margin-top: 8mm;
+	padding-top: 4mm;
+	border-top: 1pt solid #000;
+	page-break-before: auto;
+}
+
+.journal-references__title {
+	font-size: 8.5pt;
+}
+
+.journal-references__item {
+	font-size: 8.5pt;
+	line-height: 1.4;
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+
+.journal-author {
+	display: block;
+}
+
+.journal-author__name {
+	font-size: 12pt;
+}
+
+.journal-author__links,
+.journal-author__more {
+	display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   Footer reduced to a colophon.
+   -------------------------------------------------------------------------- */
+
+.journal-footer {
+	border-top: 0.5pt solid #b0b0b0;
+	padding-top: 4mm;
+	margin-top: 8mm;
+}
+
+.journal-footer__wordmark {
+	font-size: 10pt;
+}
+
+.journal-footer__statement {
+	font-size: 8pt;
+	max-width: none;
+}
+
+.journal-footer__base {
+	display: block;
+	border: 0;
+	padding-top: 2mm;
+}
+
+.journal-footer__copyright {
+	font-size: 7.5pt;
+}
+
+/* --------------------------------------------------------------------------
+   No animation, no transforms, nothing hidden by reveal state.
+   -------------------------------------------------------------------------- */
+
+.has-js [data-reveal],
+[data-reveal] {
+	opacity: 1 !important;
+	transform: none !important;
+	transition: none !important;
+	animation: none !important;
+}

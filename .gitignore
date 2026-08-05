@@ -1,0 +1,34 @@
+# WordPress core and everything that is not ours
+/wp-admin/
+/wp-includes/
+/wp-*.php
+/index.php
+/license.txt
+/readme.html
+/xmlrpc.php
+/.htaccess
+/wp-config.php
+
+# Content that belongs to an environment, not to the repository
+/wp-content/uploads/
+/wp-content/upgrade/
+/wp-content/cache/
+/wp-content/backups/
+/wp-content/plugins/
+/wp-content/themes/*
+!/wp-content/themes/astra-child/
+
+# Local tooling
+/node_modules/
+/vendor/
+.phpcs.cache
+.phpunit.result.cache
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*~
