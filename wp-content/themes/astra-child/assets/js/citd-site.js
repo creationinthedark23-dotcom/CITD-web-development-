@@ -22,7 +22,7 @@
 
 	function reveal() {
 		var targets = Array.prototype.slice.call(
-			document.querySelectorAll('[data-citd-reveal]')
+			document.querySelectorAll('.citd-reveal, [data-citd-reveal]')
 		);
 
 		if (!targets.length) {

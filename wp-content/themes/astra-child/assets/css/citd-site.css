@@ -1,889 +1,262 @@
 @charset "UTF-8";
 /**
- * CREATION IN THE DARK HOLDINGS — site design system
+ * CREATION IN THE DARK HOLDINGS — site polish layer
+ *
+ * This is deliberately small. The homepage is built from Spectra (UAGB) blocks
+ * and Astra global styles, exactly as the original site was, and those handle
+ * layout, colour and spacing. This stylesheet only does the handful of things
+ * block settings cannot:
+ *
+ *   - standardises the radius scale, keeping the site's signature asymmetric
+ *     corner rather than removing it
+ *   - adds hover and focus behaviour to the brand panels and step cards
+ *   - keeps long paragraphs to a readable measure
+ *   - carries one motion device
+ *
+ * It does not impose a typeface, a palette or a layout system. Anything an
+ * editor can change in the Customizer or in block settings is left to them.
  *
  * Loaded on every front-end view except The Creation Journal, which ships its
- * own stylesheet (assets/css/journal.css). The two share one palette and one
- * display face so the holding company and the publication read as one
- * organisation.
- *
- * Everything here is driven by wrapper classes on core Gutenberg blocks. No
- * block is styled by its generated ID, so the page stays fully editable: an
- * editor can reorder, duplicate or delete any section without breaking layout.
- *
- * Contents
- *   01  Tokens
- *   02  Bands — the light/dark rhythm
- *   03  Sitewide corrections
- *   04  Primitives: eyebrow, rule, status chip, buttons
- *   05  Opening
- *   06  Position
- *   07  The Register
- *   08  Statements
- *   09  Story
- *   10  Build with us
- *   11  Portfolio page template
- *   12  Motion and preferences
+ * own complete stylesheet.
  */
 
-/* ==========================================================================
-   01  Tokens
-   ========================================================================== */
-
 :root {
-	/* Ground ------------------------------------------------------------ */
-	--citd-ink: #0b0c0e;
-	--citd-ink-soft: #131519;
-	--citd-bone: #f6f4ef;
-	--citd-paper: #ffffff;
+	/* The signature shape. The original mixed radii of 0, 4, 6, 12, 60, 80 and
+	   100px more or less at random; these are the same visual language put on a
+	   scale, so the asymmetric corner reads as intentional. */
+	--citd-radius-sm: 6px;
+	--citd-radius-shape: 100px;
+	--citd-radius-shape-tablet: 60px;
+	--citd-radius-shape-mobile: 40px;
 
-	/* Type colour ------------------------------------------------------- */
-	--citd-heading: #101215;
-	--citd-body: #565c65;
-	--citd-faint: #686e76;
-
-	/* Accent -------------------------------------------------------------
-	   --citd-brass        text-safe on light grounds: 7.3:1 on paper.
-	   --citd-brass-bright decorative only — rules, markers, borders. It does
-	                       not meet AA as body text and must never carry
-	                       meaning on its own.
-	   --citd-brass-light  text-safe on the dark ground: 10.1:1.             */
-	--citd-brass: #6b5320;
-	--citd-brass-bright: #b08d4f;
-	--citd-brass-light: #d8b673;
-
-	--citd-rule: #e4e1d9;
-	--citd-rule-strong: #cdc9be;
-
-	/* Type families ------------------------------------------------------
-	   Set Fraunces and Inter in Customize → Global → Typography so Astra
-	   loads and manages the webfonts. These stacks are the fallback chain. */
-	--citd-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-	--citd-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	--citd-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-
-	/* Fluid type scale --------------------------------------------------- */
-	--citd-step--2: clamp(0.72rem, 0.70rem + 0.10vw, 0.78rem);
-	--citd-step--1: clamp(0.84rem, 0.81rem + 0.16vw, 0.94rem);
-	--citd-step-0: clamp(1rem, 0.96rem + 0.20vw, 1.125rem);
-	--citd-step-1: clamp(1.18rem, 1.10rem + 0.42vw, 1.44rem);
-	--citd-step-2: clamp(1.42rem, 1.28rem + 0.72vw, 1.94rem);
-	--citd-step-3: clamp(1.70rem, 1.44rem + 1.30vw, 2.62rem);
-	--citd-step-4: clamp(2.05rem, 1.62rem + 2.10vw, 3.54rem);
-	--citd-step-5: clamp(2.45rem, 1.75rem + 3.40vw, 4.75rem);
-	--citd-step-6: clamp(2.90rem, 1.80rem + 5.20vw, 6.80rem);
-
-	/* Space --------------------------------------------------------------- */
-	--citd-s2: 0.5rem;
-	--citd-s3: 0.75rem;
-	--citd-s4: 1rem;
-	--citd-s5: 1.5rem;
-	--citd-s6: 2rem;
-	--citd-s7: 2.5rem;
-	--citd-s8: 3rem;
-	--citd-s9: 4rem;
-	--citd-s10: 5.5rem;
-
-	--citd-section-y: clamp(4rem, 9vw, 9rem);
-	--citd-section-y-lg: clamp(5.5rem, 12vw, 12rem);
-
-	/* Structure ------------------------------------------------------------ */
-	--citd-shell: 76rem;
-	--citd-pad: clamp(1.25rem, 5vw, 4rem);
-	--citd-measure: 62ch;
-
-	/* The single largest visual correction to the old template. Nothing on
-	   this site is rounder than 3px, and structural containers are square. */
-	--citd-radius: 3px;
-
-	--citd-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+	--citd-measure: 64ch;
 	--citd-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-	--citd-dur: 240ms;
+	--citd-dur: 260ms;
 	--citd-dur-slow: 620ms;
-
-	--citd-focus: #1b4dd1;
-	--citd-focus-dark: #93b6ff;
 }
 
-/* ==========================================================================
-   02  Bands — the light/dark rhythm
-   --------------------------------------------------------------------------
-   Every full-width section is a band. A band re-points one set of semantic
-   tokens, so every component inside it inherits the right colours without
-   knowing which ground it is sitting on. Changing a section from light to dark
-   is a single class change in the editor.
-   ========================================================================== */
+/* --------------------------------------------------------------------------
+   Readability. Spectra lets description text run the full container width,
+   which on a wide panel becomes a 140-character line.
+   -------------------------------------------------------------------------- */
 
-.citd-band {
-	--band-ground: var(--citd-paper);
-	--band-ink: var(--citd-heading);
-	--band-body: var(--citd-body);
-	--band-faint: var(--citd-faint);
-	--band-rule: var(--citd-rule);
-	--band-rule-strong: var(--citd-rule-strong);
-	--band-accent: var(--citd-brass);
-	--band-accent-bright: var(--citd-brass-bright);
-	--band-focus: var(--citd-focus);
-
-	background-color: var(--band-ground);
-	color: var(--band-body);
-	padding-block: var(--citd-section-y);
-}
-
-.citd-band--bone {
-	--band-ground: var(--citd-bone);
-}
-
-.citd-band--dark {
-	--band-ground: var(--citd-ink);
-	--band-ink: #efede6;
-	--band-body: #a9aeb6;
-	--band-faint: #797f89;
-	--band-rule: #23262c;
-	--band-rule-strong: #343841;
-	--band-accent: var(--citd-brass-light);
-	--band-accent-bright: var(--citd-brass-light);
-	--band-focus: var(--citd-focus-dark);
-}
-
-.citd-band--tall {
-	padding-block: var(--citd-section-y-lg);
-}
-
-/* A band that hands over to the next ground rather than stopping dead. */
-.citd-band--to-light {
-	background-image: linear-gradient(to bottom, var(--citd-ink) 0%, var(--citd-ink) 72%, var(--citd-bone) 72%, var(--citd-bone) 100%);
-}
-
-.citd-shell {
-	width: 100%;
-	max-width: var(--citd-shell);
-	margin-inline: auto;
-	padding-inline: var(--citd-pad);
-}
-
-/* ==========================================================================
-   03  Sitewide corrections
-   --------------------------------------------------------------------------
-   These retire the Starter Template's signatures: the 60/80/100px leaf radii,
-   the mixed button treatments, and headings that carry no type system.
-   ========================================================================== */
-
-.wp-block-uagb-container,
-.uagb-container,
-.wp-block-uagb-image figure,
-.wp-block-uagb-image img,
-.uagb-infobox__content-wrap,
-.wp-block-group,
-.wp-block-image img {
-	border-radius: 0;
-}
-
-.wp-block-button__link,
-.uagb-buttons-repeater,
-.uagb-button__link,
-.wp-block-search__button {
-	border-radius: var(--citd-radius);
-}
-
-.citd-band h1,
-.citd-band h2,
-.citd-band h3,
-.citd-band h4 {
-	color: var(--band-ink);
-	font-weight: 400;
-	line-height: 1.1;
-	letter-spacing: -0.025em;
-	text-wrap: balance;
-	margin-block: 0;
-}
-
-.citd-band h1,
-.citd-band h2,
-.citd-band h3 {
-	font-family: var(--citd-display);
-}
-
-.citd-band p {
+.uagb-ifb-desc {
+	max-width: var(--citd-measure);
 	text-wrap: pretty;
 }
 
-.citd-band a {
-	color: inherit;
-	text-underline-offset: 0.18em;
+.uagb-ifb-title {
+	text-wrap: balance;
 }
 
-.citd-band :focus-visible {
-	outline: 2px solid var(--band-focus);
-	outline-offset: 3px;
-	border-radius: var(--citd-radius);
-}
+/* --------------------------------------------------------------------------
+   The overlapping intro card.
+   The original used a -150px pull to lift the brand grid over the hero. That
+   device is kept; it just needs to sit above its neighbour and not collapse
+   its own shadow.
+   -------------------------------------------------------------------------- */
 
-/* Body copy never runs wider than a comfortable measure, whatever the
-   container width. */
-.citd-measure {
-	max-width: var(--citd-measure);
-}
-
-/* ==========================================================================
-   04  Primitives
-   ========================================================================== */
-
-.citd-eyebrow {
-	display: flex;
-	align-items: center;
-	gap: var(--citd-s3);
-	margin-block: 0 var(--citd-s6);
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	font-weight: 600;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-	color: var(--band-accent);
-}
-
-.citd-eyebrow::before {
-	content: "";
-	flex: 0 0 auto;
-	width: 1.75rem;
-	height: 1px;
-	background-color: var(--band-accent-bright);
-}
-
-/* Status chip. The device that makes the site legible as a holding company
-   rather than an agency: agencies do not have statuses, portfolios do. */
-.citd-status {
-	display: inline-block;
-	padding: 0.32em 0.62em;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	font-weight: 600;
-	letter-spacing: 0.13em;
-	text-transform: uppercase;
-	white-space: nowrap;
-	border: 1px solid currentColor;
-	border-radius: 0;
-	color: var(--band-accent);
-}
-
-.citd-status--operating {
-	color: var(--band-accent);
-}
-
-.citd-status--building,
-.citd-status--development,
-.citd-status--concept {
-	color: var(--band-faint);
-}
-
-/* Buttons. One outline treatment and one solid, both square-ish, both
-   inheriting the band. */
-.citd-band .wp-block-button__link {
-	padding: 0.85em 1.5em;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--1);
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	line-height: 1.2;
-	text-decoration: none;
-	transition:
-		background-color var(--citd-dur) var(--citd-ease),
-		border-color var(--citd-dur) var(--citd-ease),
-		color var(--citd-dur) var(--citd-ease);
-}
-
-.citd-band .is-style-outline > .wp-block-button__link,
-.citd-band .wp-block-button.is-style-outline > .wp-block-button__link {
-	background-color: transparent;
-	border: 1px solid var(--band-rule-strong);
-	color: var(--band-ink);
-}
-
-.citd-band .is-style-outline > .wp-block-button__link:hover {
-	border-color: var(--band-ink);
-	background-color: var(--band-accent);
-	color: var(--band-ground);
-}
-
-.citd-band .wp-block-button:not(.is-style-outline) > .wp-block-button__link {
-	background-color: var(--band-ink);
-	border: 1px solid var(--band-ink);
-	color: var(--band-ground);
-}
-
-.citd-band .wp-block-button:not(.is-style-outline) > .wp-block-button__link:hover {
-	background-color: var(--band-accent);
-	border-color: var(--band-accent);
-	color: var(--band-ground);
-}
-
-.citd-band .wp-block-buttons {
-	gap: var(--citd-s4);
-}
-
-/* A text link that behaves as a call to action without a button box. */
-.citd-textlink a,
-a.citd-textlink {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5em;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--1);
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	text-decoration: none;
-	color: var(--band-ink);
-	border-bottom: 1px solid var(--band-accent-bright);
-	padding-bottom: 0.2em;
-	transition: color var(--citd-dur) var(--citd-ease), border-color var(--citd-dur) var(--citd-ease);
-}
-
-.citd-textlink a::after,
-a.citd-textlink::after {
-	content: "→";
-	transition: transform var(--citd-dur) var(--citd-ease-out);
-}
-
-.citd-textlink a:hover::after,
-a.citd-textlink:hover::after {
-	transform: translateX(3px);
-}
-
-.citd-textlink a:hover,
-a.citd-textlink:hover {
-	color: var(--band-accent);
-	border-bottom-color: var(--band-accent);
-}
-
-/* ==========================================================================
-   05  Opening
-   --------------------------------------------------------------------------
-   No background photograph. The type is the image.
-   ========================================================================== */
-
-.citd-open {
-	padding-block: clamp(6rem, 16vw, 13rem) var(--citd-section-y);
-}
-
-.citd-open__title {
-	font-size: var(--citd-step-6) !important;
-	line-height: 0.94;
-	letter-spacing: -0.035em;
-	max-width: 16ch;
-	margin-bottom: var(--citd-s7) !important;
-}
-
-.citd-open__standfirst {
-	max-width: 48ch;
-	font-size: var(--citd-step-1);
-	line-height: 1.5;
-	color: var(--band-body);
-	margin-bottom: var(--citd-s8) !important;
-}
-
-.citd-open__foot {
-	margin-top: var(--citd-s9);
-	padding-top: var(--citd-s5);
-	border-top: 1px solid var(--band-rule);
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--band-faint);
-}
-
-/* ==========================================================================
-   06  Position
-   --------------------------------------------------------------------------
-   The section that draws the line between the holding company and the
-   operating brands. The most important argument on the page.
-   ========================================================================== */
-
-.citd-position__claim {
-	font-family: var(--citd-display);
-	font-size: var(--citd-step-3) !important;
-	line-height: 1.12;
-	letter-spacing: -0.025em;
-	color: var(--band-ink);
-	max-width: 24ch;
-	margin-bottom: var(--citd-s6) !important;
-}
-
-.citd-position__body {
-	max-width: var(--citd-measure);
-	font-size: var(--citd-step-0);
-	line-height: 1.7;
-}
-
-.citd-holds {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 0;
-	margin-top: var(--citd-s9);
-	border-top: 1px solid var(--band-rule);
-	list-style: none;
-	padding-left: 0;
-}
-
-.citd-holds li {
-	padding-block: var(--citd-s5);
-	border-bottom: 1px solid var(--band-rule);
-}
-
-.citd-holds strong {
-	display: block;
-	font-family: var(--citd-display);
-	font-size: var(--citd-step-1);
-	font-weight: 400;
-	letter-spacing: -0.02em;
-	color: var(--band-ink);
-	margin-bottom: var(--citd-s2);
-}
-
-.citd-holds span {
-	display: block;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--1);
-	line-height: 1.55;
-	color: var(--band-body);
-}
-
-@media (min-width: 48rem) {
-	.citd-holds {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		column-gap: clamp(2rem, 5vw, 4rem);
-	}
-}
-
-@media (min-width: 68rem) {
-	.citd-holds {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-	}
-}
-
-/* ==========================================================================
-   07  The Register
-   --------------------------------------------------------------------------
-   The centrepiece. A typographic index, not a card grid: an index reads as
-   "these are holdings, and there could be twenty", where four cards read as
-   "we offer four services".
-   Adding a venture is adding a row. Nothing else changes.
-   ========================================================================== */
-
-.citd-register {
-	margin-top: var(--citd-s8);
-	border-top: 1px solid var(--band-rule-strong);
-}
-
-.citd-reg {
+.citd-lift {
 	position: relative;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	gap: var(--citd-s4);
-	padding-block: var(--citd-s7);
-	border-bottom: 1px solid var(--band-rule);
-	transition: padding-left var(--citd-dur-slow) var(--citd-ease-out);
+	z-index: 2;
 }
 
-.citd-reg__index {
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	font-weight: 600;
-	letter-spacing: 0.14em;
-	color: var(--band-accent);
-	font-variant-numeric: tabular-nums lining-nums;
-	margin: 0;
+.citd-pillar {
+	border-top: 2px solid var(--ast-global-color-0, #6b5320);
+	padding-top: 20px !important;
 }
 
-.citd-reg__name {
-	font-family: var(--citd-display);
-	font-size: var(--citd-step-4) !important;
-	line-height: 1;
-	letter-spacing: -0.03em;
-	margin: 0 !important;
+/* --------------------------------------------------------------------------
+   Brand panels.
+   Two image-led panels rather than four half-empty squares. The panel is the
+   click target, but the real link inside it stays a real link.
+   -------------------------------------------------------------------------- */
+
+.citd-brand {
+	position: relative;
+	overflow: hidden;
+	transition:
+		transform var(--citd-dur) var(--citd-ease-out),
+		box-shadow var(--citd-dur) var(--citd-ease-out);
 }
 
-.citd-reg__name a {
-	text-decoration: none;
-	background-image: linear-gradient(var(--band-accent-bright), var(--band-accent-bright));
-	background-repeat: no-repeat;
-	background-size: 0% 1px;
-	background-position: 0 100%;
-	transition: background-size var(--citd-dur-slow) var(--citd-ease-out);
+.citd-brand:hover,
+.citd-brand:focus-within {
+	transform: translateY(-4px);
+	box-shadow: 0 18px 48px rgba(11, 12, 14, 0.28);
 }
 
-/* The whole row is the target, but the link stays a real link. */
-.citd-reg__name a::after {
+/* Let the whole panel be clickable without breaking text selection or the
+   link's accessible name. */
+.citd-brand .uagb-infobox-cta-link::after {
 	content: "";
 	position: absolute;
 	inset: 0;
+	z-index: 3;
 }
 
-.citd-reg:hover .citd-reg__name a,
-.citd-reg:focus-within .citd-reg__name a {
-	background-size: 100% 1px;
+.citd-brand .uagb-ifb-content {
+	position: relative;
+	z-index: 2;
 }
 
-.citd-reg:hover,
-.citd-reg:focus-within {
-	padding-left: var(--citd-s4);
+.citd-brand .uagb-ifb-title-prefix {
+	opacity: 0.85;
 }
 
-.citd-reg__meta {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--citd-s3) var(--citd-s5);
+.citd-brand .uagb-infobox-cta-link {
+	transition: gap var(--citd-dur) var(--citd-ease-out);
+}
+
+.citd-brand .uagb-infobox-cta-link::before {
+	content: "→";
+	margin-right: 0.5em;
+	display: inline-block;
+	transition: transform var(--citd-dur) var(--citd-ease-out);
+}
+
+.citd-brand:hover .uagb-infobox-cta-link::before {
+	transform: translateX(4px);
+}
+
+.citd-morenote {
+	margin-top: 8px;
+	font-size: 0.9rem;
+	color: var(--ast-global-color-3, #565c65);
+	opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   Story artwork. The original's offset image with the asymmetric corner —
+   kept, but on the standard shape scale and with WordPress handling srcset.
+   -------------------------------------------------------------------------- */
+
+.citd-shape img,
+figure.citd-shape img {
+	width: 100%;
+	height: auto;
+	display: block;
+	border-radius:
+		0
+		var(--citd-radius-shape)
+		0
+		var(--citd-radius-shape);
+	object-fit: cover;
+}
+
+.citd-storyart {
+	position: relative;
+}
+
+@media (max-width: 921px) {
+	.citd-shape img,
+	figure.citd-shape img {
+		border-radius:
+			0
+			var(--citd-radius-shape-tablet)
+			0
+			var(--citd-radius-shape-tablet);
+	}
+}
+
+@media (max-width: 600px) {
+	.citd-shape img,
+	figure.citd-shape img {
+		border-radius:
+			0
+			var(--citd-radius-shape-mobile)
+			0
+			var(--citd-radius-shape-mobile);
+	}
+}
+
+/* --------------------------------------------------------------------------
+   Step cards
+   -------------------------------------------------------------------------- */
+
+.citd-step {
+	transition:
+		transform var(--citd-dur) var(--citd-ease-out),
+		box-shadow var(--citd-dur) var(--citd-ease-out);
+}
+
+.citd-step:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 32px rgba(11, 12, 14, 0.10);
+}
+
+.citd-step .uagb-ifb-title-prefix {
+	display: inline-block;
+	padding-bottom: 4px;
+	border-bottom: 2px solid var(--ast-global-color-0, #6b5320);
+	font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Journal bar. Small by design — the Journal is a destination in the
+   navigation, not a homepage section.
+   -------------------------------------------------------------------------- */
+
+.citd-journalbar {
+	border-top: 1px solid var(--ast-global-color-6, #e4e1d9);
+}
+
+.citd-journalbar__text {
 	margin: 0;
+	font-size: 0.95rem;
+	color: var(--ast-global-color-3, #565c65);
 }
 
-.citd-reg__sector {
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	font-weight: 500;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--band-faint);
-}
-
-.citd-reg__desc {
-	max-width: 54ch;
-	font-size: var(--citd-step-0);
-	line-height: 1.6;
-	color: var(--band-body);
+.citd-journalbar__link {
 	margin: 0;
-}
-
-.citd-reg__go {
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--1);
+	font-size: 0.95rem;
 	font-weight: 600;
-	letter-spacing: 0.04em;
-	color: var(--band-accent);
-	margin: 0;
+	white-space: nowrap;
 }
 
-.citd-reg__go::after {
+.citd-journalbar__link a {
+	text-decoration: none;
+	color: var(--ast-global-color-0, #6b5320);
+	border-bottom: 1px solid currentColor;
+	padding-bottom: 2px;
+}
+
+.citd-journalbar__link a::after {
 	content: " →";
 	display: inline-block;
 	transition: transform var(--citd-dur) var(--citd-ease-out);
 }
 
-.citd-reg:hover .citd-reg__go::after,
-.citd-reg:focus-within .citd-reg__go::after {
-	transform: translateX(4px);
+.citd-journalbar__link a:hover::after {
+	transform: translateX(3px);
 }
 
-@media (min-width: 62rem) {
-	.citd-reg {
-		grid-template-columns: 4rem minmax(0, 1.05fr) minmax(0, 1fr) auto;
-		align-items: baseline;
-		column-gap: clamp(1.5rem, 4vw, 3.5rem);
-		row-gap: var(--citd-s4);
-	}
+/* --------------------------------------------------------------------------
+   Focus. Spectra's buttons and links do not ship a visible focus state that
+   survives a dark panel, so one is provided here for both grounds.
+   -------------------------------------------------------------------------- */
 
-	.citd-reg__meta {
-		grid-column: 2;
-		grid-row: 2;
-	}
-
-	.citd-reg__desc {
-		grid-column: 3;
-		grid-row: 1 / span 2;
-	}
-
-	.citd-reg__go {
-		grid-column: 4;
-		grid-row: 1;
-	}
+.uagb-infobox-cta-link:focus-visible,
+.uagb-buttons-repeater:focus-visible,
+.citd-journalbar__link a:focus-visible,
+.wp-block-button__link:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 4px;
+	border-radius: 2px;
 }
 
-/* The lifecycle legend. This is why there is no separate "How We Build"
-   section: the statuses are the process. */
-.citd-legend {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--citd-s3) var(--citd-s4);
-	margin-top: var(--citd-s7);
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	letter-spacing: 0.13em;
-	text-transform: uppercase;
-	color: var(--band-faint);
+.citd-brand .uagb-infobox-cta-link:focus-visible,
+.citd-cta .uagb-buttons-repeater:focus-visible {
+	outline-color: #ffffff;
 }
 
-.citd-legend span:not(:last-child)::after {
-	content: " →";
-	margin-left: var(--citd-s3);
-	color: var(--band-accent-bright);
-}
+/* --------------------------------------------------------------------------
+   Motion. One device: a short fade-and-rise as an element enters. Applied by
+   adding `citd-reveal` to a block's Additional CSS class. Without JavaScript,
+   or with reduced motion requested, everything is simply visible.
+   -------------------------------------------------------------------------- */
 
-.citd-register__note {
-	margin-top: var(--citd-s6);
-	max-width: 54ch;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--1);
-	line-height: 1.6;
-	color: var(--band-faint);
-}
-
-/* ==========================================================================
-   08  Statements
-   --------------------------------------------------------------------------
-   Replaces "Why Choose Us". No icons, no cards — the claims carry themselves.
-   ========================================================================== */
-
-.citd-statements {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 0;
-	margin-top: var(--citd-s8);
-	border-top: 1px solid var(--band-rule);
-	list-style: none;
-	padding-left: 0;
-}
-
-.citd-statements li {
-	padding-block: var(--citd-s7);
-	border-bottom: 1px solid var(--band-rule);
-}
-
-.citd-statements strong {
-	display: block;
-	font-family: var(--citd-display);
-	font-size: var(--citd-step-2);
-	font-weight: 400;
-	line-height: 1.16;
-	letter-spacing: -0.022em;
-	color: var(--band-ink);
-	margin-bottom: var(--citd-s4);
-	max-width: 22ch;
-}
-
-.citd-statements span {
-	display: block;
-	max-width: 52ch;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step-0);
-	line-height: 1.65;
-	color: var(--band-body);
-}
-
-@media (min-width: 68rem) {
-	.citd-statements li {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-		gap: clamp(2rem, 5vw, 5rem);
-		align-items: start;
-	}
-
-	.citd-statements strong {
-		margin-bottom: 0;
-	}
-}
-
-/* ==========================================================================
-   09  Story
-   ========================================================================== */
-
-.citd-story__title {
-	font-size: var(--citd-step-3) !important;
-	line-height: 1.08;
-	max-width: 20ch;
-	margin-bottom: var(--citd-s6) !important;
-}
-
-.citd-story__body {
-	max-width: var(--citd-measure);
-	font-size: var(--citd-step-0);
-	line-height: 1.72;
-}
-
-.citd-story__body p + p {
-	margin-top: var(--citd-s5);
-}
-
-@media (min-width: 68rem) {
-	.citd-story {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-		gap: clamp(2rem, 6vw, 6rem);
-		align-items: start;
-	}
-}
-
-/* ==========================================================================
-   10  Build with us
-   --------------------------------------------------------------------------
-   Routed by intent rather than one contact form. Each route is its own entry
-   point, so the section works as a lead source rather than a dead end.
-   ========================================================================== */
-
-.citd-routes {
-	margin-top: var(--citd-s8);
-	border-top: 1px solid var(--band-rule);
-	list-style: none;
-	padding-left: 0;
-}
-
-.citd-routes li {
-	border-bottom: 1px solid var(--band-rule);
-}
-
-.citd-routes a {
-	position: relative;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	align-items: baseline;
-	gap: var(--citd-s3) var(--citd-s5);
-	padding-block: var(--citd-s5);
-	text-decoration: none;
-	color: var(--band-ink);
-	transition: padding-left var(--citd-dur-slow) var(--citd-ease-out), color var(--citd-dur) var(--citd-ease);
-}
-
-.citd-routes a:hover {
-	padding-left: var(--citd-s4);
-	color: var(--band-accent);
-}
-
-.citd-routes b {
-	font-family: var(--citd-display);
-	font-size: var(--citd-step-1);
-	font-weight: 400;
-	letter-spacing: -0.02em;
-}
-
-.citd-routes em {
-	grid-column: 1;
-	font-style: normal;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--1);
-	line-height: 1.55;
-	color: var(--band-body);
-	max-width: 56ch;
-}
-
-.citd-routes i {
-	font-style: normal;
-	color: var(--band-accent);
-	transition: transform var(--citd-dur) var(--citd-ease-out);
-}
-
-.citd-routes a:hover i {
-	transform: translateX(4px);
-}
-
-@media (min-width: 62rem) {
-	.citd-routes a {
-		grid-template-columns: minmax(0, 18rem) minmax(0, 1fr) auto;
-	}
-
-	.citd-routes em {
-		grid-column: 2;
-	}
-}
-
-/* ==========================================================================
-   11  Portfolio page template
-   --------------------------------------------------------------------------
-   One repeatable pattern. A new venture is a new page built from this, plus a
-   row in the register. Nothing else on the site changes.
-   ========================================================================== */
-
-.citd-vhero {
-	padding-block: clamp(5rem, 12vw, 9rem) var(--citd-section-y);
-}
-
-.citd-vhero__title {
-	font-size: var(--citd-step-5) !important;
-	line-height: 0.98;
-	letter-spacing: -0.033em;
-	margin-bottom: var(--citd-s5) !important;
-}
-
-.citd-vhero__meta {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--citd-s4);
-	margin-bottom: var(--citd-s6) !important;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	font-weight: 500;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--band-faint);
-}
-
-.citd-vhero__standfirst {
-	max-width: 46ch;
-	font-size: var(--citd-step-1);
-	line-height: 1.5;
-	color: var(--band-body);
-}
-
-.citd-vsection__title {
-	font-size: var(--citd-step-2) !important;
-	margin-bottom: var(--citd-s5) !important;
-}
-
-.citd-vsection__body {
-	max-width: var(--citd-measure);
-	font-size: var(--citd-step-0);
-	line-height: 1.72;
-}
-
-.citd-vsection__body p + p {
-	margin-top: var(--citd-s5);
-}
-
-.citd-backlink {
-	margin-bottom: var(--citd-s6) !important;
-	font-family: var(--citd-sans);
-	font-size: var(--citd-step--2);
-	font-weight: 600;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-}
-
-.citd-backlink a {
-	text-decoration: none;
-	color: var(--band-faint);
-	transition: color var(--citd-dur) var(--citd-ease);
-}
-
-.citd-backlink a:hover {
-	color: var(--band-accent);
-}
-
-.citd-backlink a::before {
-	content: "← ";
-}
-
-@media (min-width: 68rem) {
-	.citd-vsplit {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-		gap: clamp(2rem, 6vw, 6rem);
-		align-items: start;
-	}
-
-	.citd-vsplit .citd-vsection__title {
-		margin-bottom: 0 !important;
-	}
-}
-
-/* ==========================================================================
-   12  Motion and preferences
-   --------------------------------------------------------------------------
-   One device: a short fade-and-rise as a section enters. No parallax, no
-   counters, no carousels. The class is added by citd-site.js; without
-   JavaScript everything is simply visible.
-   ========================================================================== */
-
-.citd-has-js [data-citd-reveal] {
+.citd-has-js .citd-reveal {
 	opacity: 0;
 	transform: translateY(1.25rem);
 	transition:
@@ -891,39 +264,25 @@ a.citd-textlink:hover {
 		transform var(--citd-dur-slow) var(--citd-ease-out);
 }
 
-.citd-has-js [data-citd-reveal].is-revealed {
+.citd-has-js .citd-reveal.is-revealed {
 	opacity: 1;
 	transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	*,
-	*::before,
-	*::after {
-		animation-duration: 0.001ms !important;
-		animation-iteration-count: 1 !important;
-		transition-duration: 0.001ms !important;
-		scroll-behavior: auto !important;
-	}
-
-	.citd-has-js [data-citd-reveal] {
+	.citd-has-js .citd-reveal {
 		opacity: 1;
 		transform: none;
 	}
-}
 
-@media (prefers-contrast: more) {
-	:root {
-		--citd-rule: #9a968c;
-		--citd-rule-strong: #6c6961;
-		--citd-body: #33383f;
-		--citd-faint: #4c525a;
+	.citd-brand,
+	.citd-step {
+		transition: none;
 	}
 
-	.citd-band--dark {
-		--band-rule: #565b64;
-		--band-rule-strong: #7c828c;
-		--band-body: #cfd3d9;
-		--band-faint: #b3b8c0;
+	.citd-brand:hover,
+	.citd-brand:focus-within,
+	.citd-step:hover {
+		transform: none;
 	}
 }

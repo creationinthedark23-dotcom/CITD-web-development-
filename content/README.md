@@ -1,163 +1,152 @@
-# Homepage & portfolio content
+# Homepage & brand pages — Revision 2
 
-Block markup for the redesigned Creation in the Dark Holdings site. Every file
-in this directory is pasted into WordPress through **Editor → Options (⋮) →
-Code editor**, then switched back to the visual editor.
+Block markup for the Creation in the Dark homepage and brand pages. Paste each
+file into WordPress through **Editor → Options (⋮) → Code editor**, then switch
+back to the visual editor.
 
 | File | Goes to |
 | --- | --- |
 | `homepage.html` | The front page |
-| `portfolio-blacksalt.html` | `/blacksalt/` |
-| `portfolio-creation-in-marketing.html` | `/creation-in-marketing/` |
-| `portfolio-template.html` | Not published — the pattern for future ventures |
+| `brand-blacksalt-kitchenwear.html` | `/blacksalt/` |
+| `brand-creation-in-marketing.html` | `/creation-in-marketing/` |
+| `brand-template.html` | Not published — the pattern for future brands |
+
+**Principle: keep the design, fix the story.** This is a renovation of the
+existing Starter Template homepage, not a replacement. The hero image and
+gradient, the card that lifts over the hero, the asymmetric corner shapes, the
+coloured panels, the three-card row and the dark call-to-action block are all
+carried over from the original. What changed is the content inside them, the
+links, and the components that did not work.
+
+Built with **Spectra (UAGB) blocks**, the same vocabulary as the original page,
+so editing feels identical to editing the old site.
 
 ---
 
 ## Before pasting
 
-**1. Set the global colours.** Appearance → Customize → Global → Colors:
+**1. Global colours** — Customize → Global → Colors. The markup references
+these by variable, so the whole page re-skins if you change them here.
 
-| Slot | Value | Role |
+| Slot | Suggested | Role |
 | --- | --- | --- |
-| Color 0 | `#6B5320` | Brass — text-safe accent |
-| Color 1 | `#0B0C0E` | Ink — the dark ground |
+| Color 0 | `#6B5320` | Accent — eyebrows, links, underlines |
+| Color 1 | `#0B0C0E` | Dark panels |
 | Color 2 | `#101215` | Headings |
 | Color 3 | `#565C65` | Body text |
-| Color 4 | `#F6F4EF` | Bone — alternate surface |
-| Color 5 | `#FFFFFF` | Paper — base surface |
+| Color 4 | `#F6F4EF` | Warm alternate surface |
+| Color 5 | `#FFFFFF` | Base surface |
 | Color 6 | `#E4E1D9` | Rules and borders |
-| Color 7 | `#0B0C0E` | Overlays |
+| Color 7 | `#0B0C0E` | Hero overlay |
 
-**2. Set the typography.** Customize → Global → Typography. Headings:
-**Fraunces**, weight 400. Body: **Inter**, weight 400. Astra loads both from
-Google Fonts and manages them; the stylesheet only names them as families.
+**2. Page settings** — for the homepage and both brand pages: Astra Settings →
+**Disable Title** (each page has its own `<h1>` in the content), Content Layout
+→ **Full Width / Stretched**, Sidebar → **No Sidebar**.
 
-**3. Turn off the theme page title** on the homepage and both portfolio pages.
-Each page has its own `<h1>` in the content, and Astra's title would make a
-second one. Page editor → sidebar → **Astra Settings → Disable Title**.
-
-**4. Set the content width to full.** Astra Settings → Content Layout →
-**Full Width / Stretched**, and Sidebar → **No Sidebar**. The bands are
-`alignfull` and need the page to stop constraining them.
-
-No plugin is required. The design system lives in the child theme at
-`assets/css/citd-site.css` and loads on every page except The Creation Journal.
+**3. Typography** is left to Astra. Nothing in the stylesheet forces a typeface,
+so whatever is set in Customize → Global → Typography wins. If you want the
+display face used in The Creation Journal, set headings to **Fraunces** — but
+the page is designed to work with the current fonts as-is.
 
 ---
 
-## Which blocks these use
+## Images
 
-Core Gutenberg blocks throughout — group, heading, paragraph, buttons — plus
-four **HTML blocks** for the structural components: the holdings list, the
-register rows, the statements and the Build With Us routes.
+Every `websitedemos.net` reference is gone, along with `download.jpg` (294×172
+and 658 bytes, previously stretched across two full-bleed backgrounds).
 
-Those four are HTML blocks deliberately. Their markup is a grid with named
-parts, and building it out of nested columns would produce five levels of
-containers that break the first time someone drags something. As HTML blocks
-they are still edited in WordPress, they never throw block-validation errors,
-and adding a venture is copying twelve lines.
+The page now uses four Media Library images, each once:
 
-Everything else is a normal block: click the headline, type a new headline.
+| Where | Image | Status |
+| --- | --- | --- |
+| Hero background | `pexels-photo-10922371.jpeg` (ID 11) | Stand-in |
+| BlackSalt panel | `close-up.jpg` (ID 2264) | **Replace with real BlackSalt photography** |
+| Creation in Marketing panel | `pexels-photo-14094059.jpeg` (ID 12) | **Replace with real work imagery** |
+| Story section | `pexels-photo-34433513.jpeg` (ID 13) | Stand-in |
 
-**Spectra is not used on these pages.** It stays installed and keeps working
-everywhere else, but the new sections do not need it, and core blocks render
-without Spectra's per-block CSS and JS.
+All four are stock. They are placed so the layout is visually complete now and
+swapping in real photography is a two-click job: select the container → Style →
+Background → Image. The brand panels are the two that matter most — a real
+product or kitchen shot will transform that section.
 
 ---
 
-## Adding a venture to the register
+## Homepage structure
 
-In `homepage.html`, inside the register HTML block, copy one `<div class="citd-reg">…</div>`
-row, paste it below the last one, and change six values:
+| # | Section | Origin |
+| --- | --- | --- |
+| 1 | Hero — image, gradient, headline, two buttons | Original hero, kept |
+| 2 | Intro card lifting over the hero + four pillars | Original overlap device, new content |
+| 3 | **Our brands** — two large image-led panels | Original four-square grid, redesigned for two |
+| 4 | Our story — text beside an offset shaped image | Original story section, rewritten |
+| 5 | How we work — three cards | Original "Why Choose Us" layout, real content |
+| 6 | Build with us — dark panel with asymmetric corners | Original "Work With Us", fixed |
+| 7 | Journal bar — one line | New, deliberately small |
 
-```html
-<div class="citd-reg" data-citd-reveal>
-	<p class="citd-reg__index">03</p>
-	<h3 class="citd-reg__name"><a href="/slug/">Venture Name</a></h3>
-	<p class="citd-reg__meta">
-		<span class="citd-reg__sector">Sector</span>
-		<span class="citd-status citd-status--building">Building</span>
-	</p>
-	<p class="citd-reg__desc">One or two sentences.</p>
-	<p class="citd-reg__go">View</p>
-</div>
-```
+### The brands section
 
-Status classes, in lifecycle order:
-`citd-status--concept`, `citd-status--development`, `citd-status--building`,
-`citd-status--operating`.
+Two brands would have left two empty squares in the old four-up grid, so the
+component was rebuilt as **two large image-led panels** — a 56/44 split, each a
+full-height background image with a gradient, the brand name, a short
+description and a call to action. They lift slightly on hover and the whole
+panel is clickable.
 
-Then build the venture's page from `portfolio-template.html`. That is the whole
-process — no layout changes, no redesign, no new CSS.
+Adding a third brand: duplicate a panel container, change the width percentages
+so they divide evenly, and swap the image, number, name, description and link.
+Then build its page from `brand-template.html`.
+
+---
+
+## Writing rules for this site
+
+**BlackSalt KitchenWEAR** — always `KitchenWEAR`, never `Kitchenware`. Check
+headings, links, buttons, alt text and metadata.
+
+**Brands, not companies.** BlackSalt KitchenWEAR and Creation in Marketing are
+brands within the Creation in the Dark ecosystem. Do not describe ownership
+percentages, equity, shareholders, subsidiaries, capital allocation, governance
+or legal intellectual-property arrangements anywhere on the public site.
+
+**No invented facts.** No statistics, no team members, no client names, no years
+in business, no market claims — unless supplied.
+
+**Tone.** Confident, creative, human, concise. Not a legal document, not an
+investment prospectus, not agency filler.
 
 ---
 
 ## Navigation
 
-Four items, plus Contact as a button:
+Keep Astra's existing header. The menu should be:
 
 ```
-Portfolio     →  /#register        (or a /portfolio/ index page once there are 5+)
-Company       →  /company/
-Journal       →  /journal/
-Build With Us →  /build-with-us/
-Contact       →  /contact/         (button style)
+Home
+Company            /company/
+Brands             /#brands   (or /brands/ once there is an index page)
+The Creation Journal  /journal/
+Build With Us      /build-with-us/
+Contact            /contact/
 ```
 
-The brief's proposed navigation had two redundant pairs — *Portfolio* against
-*Ventures*, and *The Company* against *About*. Collapsing them costs nothing.
-
-*Journal* is The Creation Journal, the publication in this same repository. A
-holding company that publishes reads as a company that thinks, and it gives the
-site somewhere to grow that is not the homepage.
+The Journal is a destination in the navigation, plus the single-line bar at the
+foot of the homepage. It is not a homepage section.
 
 ---
 
-## Footer
+## Removed from the old homepage
 
-Built in Astra's footer builder rather than as block markup, so it stays
-editable in one place across every page. Structure:
+Jane Cooper, Wade Warren and Esther Howard · the 92% / 2,480 / 12+ / 640K
+statistics and their "Stats title here" labels · the generic "Why Choose Us"
+cards · the duplicate "Our Story" · "Our Inspiring Journey" · "Let's Create
+Together" · reusable block 718 · all five `websitedemos.net` images · DarkTable
+and Nest, with no placeholders left standing in for them.
 
-**Column 1** — Wordmark, one-sentence statement, social links.
-**Column 2 — Portfolio:** BlackSalt · Creation in Marketing.
-**Column 3 — Company:** About · The Creation Journal · Build With Us · Contact.
-**Column 4 — Legal:** Privacy · Terms · Company information.
+Also fixed: two `<h1>` elements per page, a 30-word sentence marked up as an
+`<h3>`, every brand link pointing at `services/`, relative links with no leading
+slash, and Nest's description that was actually DarkTable's copy.
 
-Bottom bar: `© <year> Creation in the Dark Holdings (Pty) Ltd.`
-
-Set the footer background to Color 1 (`#0B0C0E`) so the page ends on the dark
-ground it opened on.
-
----
-
-## Pages this markup expects to exist
-
-`/company/` · `/build-with-us/` · `/contact/` · `/blacksalt/` ·
-`/creation-in-marketing/` · `/journal/`
-
-`/build-with-us/` receives an `?intent=` parameter from the homepage routes
-(`partnership`, `supply`, `investment`, `collaboration`, `careers`). Preselect
-the matching option in the form if the form plugin supports it; if it does not,
-the links still work and the parameter is simply ignored.
-
----
-
-## What was removed from the old homepage, and why
-
-| Removed | Reason |
-| --- | --- |
-| Second "Our Story" section | Demo copy, duplicated a real section above it |
-| "Our Inspiring Journey" | Demo copy, and the page's second `<h1>` |
-| "Why Choose Us" | Demo copy — replaced by *The position we take* |
-| Stats row: 92% / 2,480 / 12+ / 640K | Fabricated figures under labels still reading "Stats title here" |
-| "Our Team" | Three fictional people with demo portraits |
-| "Let's Create Together" | Demo copy, CTA linked to `#`, duplicated Build With Us |
-| Reusable block 718 | Unknown template block; not carried into the rebuild |
-| All `websitedemos.net` images | Five references hotlinked from a third-party demo server |
-| DarkTable and Nest | Not ready for public presentation. No placeholder rows — they enter the register when their positioning is confirmed |
-
-Defects fixed along the way: two `<h1>` elements per page, numerals marked up
-as `<h2>`, a 30-word sentence marked up as `<h3>`, every venture CTA pointing at
-`services/`, relative links with no leading slash, broken `srcset` on every
-image, a 658-byte image stretched across two full-bleed backgrounds, and the
-60/80/100-pixel corner radii that made the site read as an edited template.
+Two Spectra defects are corrected at render time by the child theme
+(`inc/site-output.php`) rather than by editing block markup, which would put
+every button permanently into WordPress's "invalid content" state: the empty
+`aria-label` and the incorrect `role="button"` on links that navigate, and a
+no-op inline `onclick` on every card.

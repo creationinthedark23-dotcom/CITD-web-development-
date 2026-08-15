@@ -81,6 +81,7 @@ function citd_journal_load_module( $module ) {
  * newsletter          Subscription endpoint and storage.
  * shortcodes          [pullquote], [journal_stat], [journal_note].
  * customizer          Masthead, newsletter, footer and social settings.
+ * site-output         Front-end corrections for Spectra blocks.
  */
 $citd_journal_modules = array(
 	'setup',
@@ -96,6 +97,7 @@ $citd_journal_modules = array(
 	'newsletter',
 	'shortcodes',
 	'customizer',
+	'site-output',
 );
 
 foreach ( $citd_journal_modules as $citd_journal_module ) {
