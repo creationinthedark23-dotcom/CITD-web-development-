@@ -1,38 +1,26 @@
 @charset "UTF-8";
 /**
- * CREATION IN THE DARK HOLDINGS — site polish layer
+ * CREATION IN THE DARK — site polish
  *
- * This is deliberately small. The homepage is built from Spectra (UAGB) blocks
- * and Astra global styles, exactly as the original site was, and those handle
- * layout, colour and spacing. This stylesheet only does the handful of things
- * block settings cannot:
+ * Deliberately tiny. The homepage is the original Spectra (UAGB) build with
+ * rewritten content; Spectra and Astra handle all layout, colour, spacing,
+ * backgrounds and corner radii through block settings, exactly as before.
  *
- *   - standardises the radius scale, keeping the site's signature asymmetric
- *     corner rather than removing it
- *   - adds hover and focus behaviour to the brand panels and step cards
- *   - keeps long paragraphs to a readable measure
- *   - carries one motion device
+ * This file only adds the three things block settings cannot:
+ *   - a hover state on the two brand cards and the three step cards
+ *   - a visible keyboard focus ring that works on light and dark panels
+ *   - a readable maximum line length for long description text
  *
- * It does not impose a typeface, a palette or a layout system. Anything an
- * editor can change in the Customizer or in block settings is left to them.
+ * It imposes no typeface, no palette and no layout. Everything an editor can
+ * change in the Customizer or in block settings stays theirs.
  *
- * Loaded on every front-end view except The Creation Journal, which ships its
- * own complete stylesheet.
+ * Loaded everywhere except The Creation Journal, which has its own stylesheet.
  */
 
 :root {
-	/* The signature shape. The original mixed radii of 0, 4, 6, 12, 60, 80 and
-	   100px more or less at random; these are the same visual language put on a
-	   scale, so the asymmetric corner reads as intentional. */
-	--citd-radius-sm: 6px;
-	--citd-radius-shape: 100px;
-	--citd-radius-shape-tablet: 60px;
-	--citd-radius-shape-mobile: 40px;
-
-	--citd-measure: 64ch;
+	--citd-measure: 62ch;
 	--citd-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 	--citd-dur: 260ms;
-	--citd-dur-slow: 620ms;
 }
 
 /* --------------------------------------------------------------------------
@@ -42,247 +30,79 @@
 
 .uagb-ifb-desc {
 	max-width: var(--citd-measure);
-	text-wrap: pretty;
-}
-
-.uagb-ifb-title {
-	text-wrap: balance;
 }
 
 /* --------------------------------------------------------------------------
-   The overlapping intro card.
-   The original used a -150px pull to lift the brand grid over the hero. That
-   device is kept; it just needs to sit above its neighbour and not collapse
-   its own shadow.
+   Brand cards. The two columns in the brands section keep every original
+   border, radius and padding; this only makes them feel active.
    -------------------------------------------------------------------------- */
 
-.citd-lift {
-	position: relative;
-	z-index: 2;
-}
-
-.citd-pillar {
-	border-top: 2px solid var(--ast-global-color-0, #6b5320);
-	padding-top: 20px !important;
-}
-
-/* --------------------------------------------------------------------------
-   Brand panels.
-   Two image-led panels rather than four half-empty squares. The panel is the
-   click target, but the real link inside it stays a real link.
-   -------------------------------------------------------------------------- */
-
-.citd-brand {
-	position: relative;
-	overflow: hidden;
-	transition:
-		transform var(--citd-dur) var(--citd-ease-out),
-		box-shadow var(--citd-dur) var(--citd-ease-out);
-}
-
-.citd-brand:hover,
-.citd-brand:focus-within {
-	transform: translateY(-4px);
-	box-shadow: 0 18px 48px rgba(11, 12, 14, 0.28);
-}
-
-/* Let the whole panel be clickable without breaking text selection or the
-   link's accessible name. */
-.citd-brand .uagb-infobox-cta-link::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: 3;
-}
-
-.citd-brand .uagb-ifb-content {
-	position: relative;
-	z-index: 2;
-}
-
-.citd-brand .uagb-ifb-title-prefix {
-	opacity: 0.85;
-}
-
-.citd-brand .uagb-infobox-cta-link {
-	transition: gap var(--citd-dur) var(--citd-ease-out);
-}
-
-.citd-brand .uagb-infobox-cta-link::before {
-	content: "→";
-	margin-right: 0.5em;
-	display: inline-block;
-	transition: transform var(--citd-dur) var(--citd-ease-out);
-}
-
-.citd-brand:hover .uagb-infobox-cta-link::before {
-	transform: translateX(4px);
-}
-
-.citd-morenote {
-	margin-top: 8px;
-	font-size: 0.9rem;
-	color: var(--ast-global-color-3, #565c65);
-	opacity: 0.85;
-}
-
-/* --------------------------------------------------------------------------
-   Story artwork. The original's offset image with the asymmetric corner —
-   kept, but on the standard shape scale and with WordPress handling srcset.
-   -------------------------------------------------------------------------- */
-
-.citd-shape img,
-figure.citd-shape img {
-	width: 100%;
-	height: auto;
-	display: block;
-	border-radius:
-		0
-		var(--citd-radius-shape)
-		0
-		var(--citd-radius-shape);
-	object-fit: cover;
-}
-
-.citd-storyart {
-	position: relative;
-}
-
-@media (max-width: 921px) {
-	.citd-shape img,
-	figure.citd-shape img {
-		border-radius:
-			0
-			var(--citd-radius-shape-tablet)
-			0
-			var(--citd-radius-shape-tablet);
-	}
-}
-
-@media (max-width: 600px) {
-	.citd-shape img,
-	figure.citd-shape img {
-		border-radius:
-			0
-			var(--citd-radius-shape-mobile)
-			0
-			var(--citd-radius-shape-mobile);
-	}
-}
-
-/* --------------------------------------------------------------------------
-   Step cards
-   -------------------------------------------------------------------------- */
-
+.citd-brandcard,
 .citd-step {
 	transition:
 		transform var(--citd-dur) var(--citd-ease-out),
 		box-shadow var(--citd-dur) var(--citd-ease-out);
 }
 
+.citd-brandcard:hover,
+.citd-brandcard:focus-within {
+	transform: translateY(-3px);
+	box-shadow: 0 14px 40px rgba(11, 12, 14, 0.10);
+}
+
 .citd-step:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 12px 32px rgba(11, 12, 14, 0.10);
+	transform: translateY(-3px);
+	box-shadow: 0 12px 32px rgba(11, 12, 14, 0.09);
 }
 
-.citd-step .uagb-ifb-title-prefix {
-	display: inline-block;
-	padding-bottom: 4px;
-	border-bottom: 2px solid var(--ast-global-color-0, #6b5320);
-	font-variant-numeric: tabular-nums lining-nums;
-}
-
-/* --------------------------------------------------------------------------
-   Journal bar. Small by design — the Journal is a destination in the
-   navigation, not a homepage section.
-   -------------------------------------------------------------------------- */
-
-.citd-journalbar {
-	border-top: 1px solid var(--ast-global-color-6, #e4e1d9);
-}
-
-.citd-journalbar__text {
-	margin: 0;
-	font-size: 0.95rem;
-	color: var(--ast-global-color-3, #565c65);
-}
-
-.citd-journalbar__link {
-	margin: 0;
-	font-size: 0.95rem;
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.citd-journalbar__link a {
-	text-decoration: none;
-	color: var(--ast-global-color-0, #6b5320);
-	border-bottom: 1px solid currentColor;
-	padding-bottom: 2px;
-}
-
-.citd-journalbar__link a::after {
-	content: " →";
+/* Nudge the card's call to action on hover, so the whole card reads as one
+   target without changing its markup. */
+.citd-brandcard .uagb-infobox-cta-link {
 	display: inline-block;
 	transition: transform var(--citd-dur) var(--citd-ease-out);
 }
 
-.citd-journalbar__link a:hover::after {
-	transform: translateX(3px);
+.citd-brandcard:hover .uagb-infobox-cta-link {
+	transform: translateX(4px);
 }
 
 /* --------------------------------------------------------------------------
-   Focus. Spectra's buttons and links do not ship a visible focus state that
-   survives a dark panel, so one is provided here for both grounds.
+   Focus. Spectra ships no focus state that survives a dark panel.
    -------------------------------------------------------------------------- */
 
 .uagb-infobox-cta-link:focus-visible,
 .uagb-buttons-repeater:focus-visible,
-.citd-journalbar__link a:focus-visible,
 .wp-block-button__link:focus-visible {
 	outline: 2px solid currentColor;
 	outline-offset: 4px;
 	border-radius: 2px;
 }
 
-.citd-brand .uagb-infobox-cta-link:focus-visible,
-.citd-cta .uagb-buttons-repeater:focus-visible {
-	outline-color: #ffffff;
-}
-
 /* --------------------------------------------------------------------------
-   Motion. One device: a short fade-and-rise as an element enters. Applied by
-   adding `citd-reveal` to a block's Additional CSS class. Without JavaScript,
-   or with reduced motion requested, everything is simply visible.
+   Small note used at the foot of the brand pages.
    -------------------------------------------------------------------------- */
 
-.citd-has-js .citd-reveal {
-	opacity: 0;
-	transform: translateY(1.25rem);
-	transition:
-		opacity var(--citd-dur-slow) var(--citd-ease-out),
-		transform var(--citd-dur-slow) var(--citd-ease-out);
+.citd-morenote {
+	font-size: 0.9rem;
 }
 
-.citd-has-js .citd-reveal.is-revealed {
-	opacity: 1;
-	transform: none;
+.citd-morenote a {
+	text-decoration: none;
+	border-bottom: 1px solid currentColor;
+	padding-bottom: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.citd-has-js .citd-reveal {
-		opacity: 1;
-		transform: none;
-	}
-
-	.citd-brand,
-	.citd-step {
+	.citd-brandcard,
+	.citd-step,
+	.citd-brandcard .uagb-infobox-cta-link {
 		transition: none;
 	}
 
-	.citd-brand:hover,
-	.citd-brand:focus-within,
-	.citd-step:hover {
+	.citd-brandcard:hover,
+	.citd-brandcard:focus-within,
+	.citd-step:hover,
+	.citd-brandcard:hover .uagb-infobox-cta-link {
 		transform: none;
 	}
 }

@@ -97,25 +97,15 @@ function citd_journal_enqueue_assets() {
 	);
 
 	if ( ! citd_journal_is_journal_context() ) {
-		// Everywhere except the publication: the holding company design system.
-		// The two stylesheets are never loaded together, so their class
-		// namespaces (citd-* and journal-*) can never collide.
+		// Everywhere except the publication: a small polish layer over the
+		// Spectra build. The two stylesheets are never loaded together, so
+		// their class namespaces (citd-* and journal-*) cannot collide.
+		// No JavaScript is loaded here — the homepage needs none.
 		wp_enqueue_style(
 			'citd-site',
 			CITD_JOURNAL_URI . '/assets/css/citd-site.css',
 			array( 'citd-journal-base' ),
 			CITD_JOURNAL_VERSION
-		);
-
-		wp_enqueue_script(
-			'citd-site',
-			CITD_JOURNAL_URI . '/assets/js/citd-site.js',
-			array(),
-			CITD_JOURNAL_VERSION,
-			array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
-			)
 		);
 
 		return;
