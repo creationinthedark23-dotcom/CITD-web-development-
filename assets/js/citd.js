@@ -258,6 +258,7 @@
 
       revealAboveFold();
       heroEntrance();
+      initHeroVideo();
       honourInitialHash();
 
       if (loader) {
@@ -312,6 +313,66 @@
           el.classList.add("is-in");
         });
       });
+  }
+
+  /* The hero background video is opt-in, never a cost the visitor did not
+     agree to: it is skipped for reduced motion, for Save-Data, and on slow
+     connections. The approved still stays visible until it actually plays. */
+  function initHeroVideo() {
+    var video = document.getElementById("heroVideo");
+    if (!video || !motionOK()) return;
+
+    var src = video.getAttribute("data-src");
+    if (!src) return;
+
+    var conn =
+      navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      if (conn.saveData) return;
+      if (/2g/.test(conn.effectiveType || "")) return;
+    }
+
+    video.addEventListener(
+      "playing",
+      function () {
+        video.classList.add("is-playing");
+      },
+      { once: true }
+    );
+
+    /* If it cannot play, leave the still in place and stop trying */
+    video.addEventListener(
+      "error",
+      function () {
+        video.classList.remove("is-playing");
+        video.removeAttribute("src");
+      },
+      { once: true }
+    );
+
+    video.src = src;
+
+    var attempt = video.play();
+    if (attempt && typeof attempt.catch === "function") {
+      attempt.catch(function () {
+        /* Autoplay refused: the still is already doing the job */
+      });
+    }
+
+    /* Stop decoding while the hero is off screen */
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        function (entries) {
+          if (entries[0].isIntersecting) {
+            var r = video.play();
+            if (r && typeof r.catch === "function") r.catch(function () {});
+          } else if (!video.paused) {
+            video.pause();
+          }
+        },
+        { threshold: 0.05 }
+      ).observe(video);
+    }
   }
 
   function heroEntrance() {
@@ -953,6 +1014,12 @@
 
       var hero = document.getElementById("hero");
       if (hero) hero.style.visibility = "";
+
+      var video = document.getElementById("heroVideo");
+      if (video) {
+        video.pause();
+        video.classList.remove("is-playing");
+      }
 
       document.querySelectorAll("[data-reveal]").forEach(function (el) {
         el.classList.add("is-in");
