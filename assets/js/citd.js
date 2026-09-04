@@ -4,7 +4,8 @@
    Motion hierarchy
      Level 1  micro       hover, cursor light, magnetic CTAs, nav underlines
      Level 2  section     reveals, line staggers, image masks, parallax
-     Level 3  feature     loader handoff, hero entrance, hero cover, blooms
+     Level 3  feature     loader handoff, hero entrance, hero cover, blooms,
+                          page transitions
 
    Everything here is enhancement. With JS disabled or a library missing the
    page renders complete and static, and every link still works.
@@ -13,7 +14,6 @@
 (function () {
   "use strict";
 
-  var root = document.documentElement;
   var body = document.body;
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -21,6 +21,10 @@
   var hasGsap = typeof window.gsap !== "undefined";
   var hasST = hasGsap && typeof window.ScrollTrigger !== "undefined";
   var hasLenis = typeof window.Lenis !== "undefined";
+
+  /* Sections that sit above the fold on load. Their reveals are driven by
+     the loader handoff rather than by scroll. */
+  var ABOVE_FOLD = ".hero, .jhead";
 
   /* Native CSS scroll-driven animation. Where it exists the browser owns the
      line work in "How we think" and JS stays out of the way. */
@@ -36,6 +40,17 @@
   function headerOffset() {
     var h = document.getElementById("siteHeader");
     return h ? h.offsetHeight : 64;
+  }
+
+  /* sessionStorage throws in some privacy modes, so never trust it bare */
+  function session(key, value) {
+    try {
+      if (typeof value === "undefined") return window.sessionStorage.getItem(key);
+      window.sessionStorage.setItem(key, value);
+    } catch (e) {
+      /* no-op */
+    }
+    return null;
   }
 
   /* ------------------------------------------------------------------------
@@ -72,62 +87,153 @@
     }
   }
 
-  /* Anchor navigation: keep Lenis, the fixed header and keyboard focus in
-     agreement. Without JS the CSS scroll-margin-top handles the offset. */
-  function initAnchors() {
-    document.addEventListener("click", function (event) {
-      var link = event.target.closest('a[href^="#"]');
-      if (!link) return;
+  function scrollToTarget(target, hash) {
+    var top =
+      hash === "#top"
+        ? 0
+        : target.getBoundingClientRect().top + window.scrollY - headerOffset();
 
-      var hash = link.getAttribute("href");
-      if (!hash || hash === "#") return;
-
-      var target =
-        hash === "#top" ? document.body : document.querySelector(hash);
-      if (!target) return;
-
-      event.preventDefault();
-      closeMenu();
-
-      var top =
-        hash === "#top"
-          ? 0
-          : target.getBoundingClientRect().top +
-            window.scrollY -
-            headerOffset();
-
-      if (lenis) {
-        lenis.scrollTo(top, { duration: 1.25 });
-      } else {
-        window.scrollTo({
-          top: top,
-          behavior: motionOK() ? "smooth" : "auto"
-        });
-      }
-
-      /* Move the document focus so keyboard and screen reader users land
-         where sighted users land. */
-      if (hash !== "#top") {
-        var hadTabindex = target.hasAttribute("tabindex");
-        if (!hadTabindex) target.setAttribute("tabindex", "-1");
-        target.focus({ preventScroll: true });
-        if (!hadTabindex) {
-          target.addEventListener(
-            "blur",
-            function () {
-              target.removeAttribute("tabindex");
-            },
-            { once: true }
-          );
-        }
-      }
-
-      if (history.replaceState) history.replaceState(null, "", hash);
-    });
+    if (lenis) {
+      lenis.scrollTo(top, { duration: 1.25 });
+    } else {
+      window.scrollTo({
+        top: top,
+        behavior: motionOK() ? "smooth" : "auto"
+      });
+    }
+    return top;
   }
 
   /* ------------------------------------------------------------------------
-     2. Loading transition -> hero handoff
+     2. Navigation — in-page anchors and cross-page transitions
+     ------------------------------------------------------------------------ */
+
+  function samePage(url) {
+    return (
+      url.pathname.replace(/index\.html$/, "") ===
+        location.pathname.replace(/index\.html$/, "") &&
+      url.search === location.search
+    );
+  }
+
+  function initAnchors() {
+    document.addEventListener("click", function (event) {
+      /* Let the browser handle modified clicks and new-tab intent */
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      var link = event.target.closest("a[href]");
+      if (!link || link.target === "_blank" || link.hasAttribute("download")) {
+        return;
+      }
+
+      var raw = link.getAttribute("href");
+      if (!raw || /^(mailto:|tel:|sms:|https?:\/\/wa\.me)/i.test(raw)) return;
+
+      var url;
+      try {
+        url = new URL(link.href, location.href);
+      } catch (e) {
+        return;
+      }
+
+      if (url.origin !== location.origin) return;
+
+      /* --- in-page anchor ------------------------------------------------ */
+      if (url.hash && samePage(url)) {
+        var target =
+          url.hash === "#top" ? document.body : document.querySelector(url.hash);
+        if (!target) return;
+
+        event.preventDefault();
+        closeMenu();
+        scrollToTarget(target, url.hash);
+        moveFocusTo(target, url.hash);
+        if (history.replaceState) history.replaceState(null, "", url.hash);
+        return;
+      }
+
+      /* --- same page, no hash: nothing to do ----------------------------- */
+      if (!url.hash && samePage(url)) {
+        event.preventDefault();
+        closeMenu();
+        scrollToTarget(document.body, "#top");
+        return;
+      }
+
+      /* --- cross-page: short veil, then navigate ------------------------- */
+      if (!motionOK()) return; // let it navigate immediately
+
+      event.preventDefault();
+      closeMenu();
+      body.classList.add("is-leaving");
+
+      var go = function () {
+        location.href = url.href;
+      };
+      /* The veil is a courtesy, not a gate: navigate regardless */
+      window.setTimeout(go, 380);
+    });
+  }
+
+  /* Move document focus so keyboard and screen reader users land where
+     sighted users land. */
+  function moveFocusTo(target, hash) {
+    if (hash === "#top" || !target || target === document.body) return;
+    var had = target.hasAttribute("tabindex");
+    if (!had) target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+    if (!had) {
+      target.addEventListener(
+        "blur",
+        function () {
+          target.removeAttribute("tabindex");
+        },
+        { once: true }
+      );
+    }
+  }
+
+  /* Restoring from the back/forward cache must not leave the veil up */
+  function initPageshow() {
+    /* No beforeunload listener here: it would make the page ineligible for
+       the back/forward cache in some browsers. */
+    window.addEventListener("pageshow", function (event) {
+      body.classList.remove("is-leaving");
+      if (event.persisted && hasST) window.ScrollTrigger.refresh();
+    });
+  }
+
+  /* Mark the nav link for the document we are actually on */
+  function initCurrentPage() {
+    document
+      .querySelectorAll(".primary-nav a[href], .menu-panel a[href]")
+      .forEach(function (link) {
+        var url;
+        try {
+          url = new URL(link.href, location.href);
+        } catch (e) {
+          return;
+        }
+        /* Only a hash-less link to this same document is "the current page";
+           in-page anchors are handled by the scroll spy. */
+        if (!url.hash && samePage(url)) {
+          link.classList.add("is-current");
+          link.setAttribute("aria-current", "page");
+        }
+      });
+  }
+
+  /* ------------------------------------------------------------------------
+     3. Loading transition -> content handoff
      ------------------------------------------------------------------------ */
 
   function initLoader() {
@@ -135,41 +241,58 @@
     var hero = document.getElementById("hero");
     var done = false;
 
-    body.classList.add("is-locked");
+    /* The loader is a first-impression, not a toll gate. Once this session
+       has seen it, every later page arrives on the page transition instead. */
+    var seen = session("citd:loaded") === "1";
 
-    function finish() {
+    function finish(skipBeat) {
       if (done) return;
       done = true;
+
+      session("citd:loaded", "1");
 
       if (loader) loader.classList.add("is-done");
       body.classList.remove("is-locked");
       body.classList.add("is-ready");
       if (hero) hero.classList.add("is-lit");
 
-      revealHero();
+      revealAboveFold();
       heroEntrance();
+      honourInitialHash();
 
       if (loader) {
-        window.setTimeout(function () {
-          if (loader.parentNode) loader.parentNode.removeChild(loader);
-        }, 1000);
+        window.setTimeout(
+          function () {
+            if (loader.parentNode) loader.parentNode.removeChild(loader);
+          },
+          skipBeat ? 0 : 1000
+        );
       }
+      if (hasST) window.setTimeout(function () {
+        window.ScrollTrigger.refresh();
+      }, 60);
     }
 
-    if (!motionOK()) {
-      finish();
+    if (!loader || seen || !motionOK()) {
+      if (loader) loader.remove();
+      if (motionOK()) {
+        body.classList.add("is-arriving");
+        window.setTimeout(function () {
+          body.classList.remove("is-arriving");
+        }, 700);
+      }
+      finish(true);
       return;
     }
 
+    body.classList.add("is-locked");
+
     /* Whichever comes first: the page is ready, or we stop waiting. The
        visitor is never held behind the loader. */
-    var minimum = window.setTimeout(finish, 1150);
     var ceiling = window.setTimeout(finish, 2600);
+    window.setTimeout(finish, 1150);
 
-    if (document.readyState === "complete") {
-      // keep the minimum beat so the handoff is not a flash
-      void minimum;
-    } else {
+    if (document.readyState !== "complete") {
       window.addEventListener(
         "load",
         function () {
@@ -181,9 +304,14 @@
     }
   }
 
-  function revealHero() {
-    var items = document.querySelectorAll(".hero [data-reveal]");
-    for (var i = 0; i < items.length; i++) items[i].classList.add("is-in");
+  function revealAboveFold() {
+    document
+      .querySelectorAll(ABOVE_FOLD)
+      .forEach(function (section) {
+        section.querySelectorAll("[data-reveal]").forEach(function (el) {
+          el.classList.add("is-in");
+        });
+      });
   }
 
   function heroEntrance() {
@@ -200,8 +328,44 @@
     );
   }
 
+  /* Landing on a deep link must not leave the sections above it blank */
+  function honourInitialHash() {
+    var hash = location.hash;
+    if (!hash || hash.length < 2) return;
+
+    var target;
+    try {
+      target = document.querySelector(hash);
+    } catch (e) {
+      return;
+    }
+    if (!target) return;
+
+    var top = target.getBoundingClientRect().top + window.scrollY - headerOffset();
+    revealAbove(top + window.innerHeight);
+
+    if (lenis) {
+      lenis.scrollTo(top, { immediate: true });
+    } else {
+      window.scrollTo({ top: top, behavior: "auto" });
+    }
+  }
+
+  function revealAbove(y) {
+    document.querySelectorAll("[data-reveal]").forEach(function (el) {
+      if (el.getBoundingClientRect().top + window.scrollY < y) {
+        el.classList.add("is-in");
+      }
+    });
+    document.querySelectorAll(".finale, .story__media").forEach(function (el) {
+      if (el.getBoundingClientRect().top + window.scrollY < y) {
+        el.classList.add("is-in");
+      }
+    });
+  }
+
   /* ------------------------------------------------------------------------
-     3. Section reveals
+     4. Section reveals
      ------------------------------------------------------------------------ */
 
   function initReveals() {
@@ -210,7 +374,9 @@
 
     /* Reduced motion, or no observer: nothing is ever withheld. */
     if (!motionOK() || !("IntersectionObserver" in window)) {
-      for (var i = 0; i < items.length; i++) items[i].classList.add("is-in");
+      items.forEach(function (el) {
+        el.classList.add("is-in");
+      });
       document.querySelectorAll(".finale, .story__media").forEach(function (el) {
         el.classList.add("is-in");
       });
@@ -229,43 +395,62 @@
     );
 
     items.forEach(function (item) {
-      /* The hero is driven by the loader handoff, not by scroll. */
-      if (item.closest(".hero")) return;
+      /* Above-the-fold sections are driven by the loader handoff */
+      if (item.closest(ABOVE_FOLD)) return;
       observer.observe(item);
     });
 
     /* Elements that light their own section rather than themselves */
     var lit = document.querySelectorAll(".finale, .story__media");
-    if (lit.length) {
-      var litObserver = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add("is-in");
-            litObserver.unobserve(entry.target);
-          });
-        },
-        { threshold: 0.2 }
-      );
-      lit.forEach(function (el) {
-        litObserver.observe(el);
-      });
-    }
+    if (!lit.length) return;
+
+    var litObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-in");
+          litObserver.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.2 }
+    );
+    lit.forEach(function (el) {
+      litObserver.observe(el);
+    });
   }
 
   /* ------------------------------------------------------------------------
-     4. Header: scrolled state, inversion over the paper chapters, scroll spy
+     5. Header: scrolled state, inversion over paper chapters, scroll spy
      ------------------------------------------------------------------------ */
 
   function initHeader() {
     var header = document.getElementById("siteHeader");
     if (!header) return;
 
+    /* Pages without a hero begin with content directly under the header,
+       so the header carries its solid treatment from the start. */
+    var hasHero = !!document.querySelector(".hero");
     var ticking = false;
 
+    /* The floating WhatsApp button steps aside once the footer — which
+       carries the same details in full — is on screen. */
+    var footerInView = false;
+
     function update() {
-      header.classList.toggle("is-scrolled", window.scrollY > 24);
+      header.classList.toggle("is-scrolled", !hasHero || window.scrollY > 24);
+      body.classList.toggle(
+        "show-whatsapp",
+        !footerInView && window.scrollY > window.innerHeight * 0.5
+      );
       ticking = false;
+    }
+
+    var footer = document.querySelector(".site-footer");
+    if (footer && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        footerInView = entries[0].isIntersecting;
+        update();
+      }).observe(footer);
     }
 
     update();
@@ -301,7 +486,10 @@
           header.classList.toggle("is-light", active.size > 0);
           body.classList.toggle("on-light", active.size > 0);
         },
-        { rootMargin: "-" + Math.round(line) + "px 0px -" + Math.round(bottom) + "px 0px" }
+        {
+          rootMargin:
+            "-" + Math.round(line) + "px 0px -" + Math.round(bottom) + "px 0px"
+        }
       );
 
       active.clear();
@@ -320,16 +508,33 @@
   }
 
   function initScrollSpy() {
-    var links = document.querySelectorAll(".primary-nav .nav-link");
-    if (!links.length || !("IntersectionObserver" in window)) return;
+    if (!("IntersectionObserver" in window)) return;
 
+    /* Only links that point at a section of THIS document */
+    var owned = [];
     var map = new Map();
-    links.forEach(function (link) {
-      var id = link.getAttribute("href");
-      if (!id || id.charAt(0) !== "#") return;
-      var section = document.querySelector(id);
-      if (section) map.set(section, link);
+
+    document.querySelectorAll(".primary-nav .nav-link").forEach(function (link) {
+      var url;
+      try {
+        url = new URL(link.href, location.href);
+      } catch (e) {
+        return;
+      }
+      if (!url.hash || !samePage(url)) return;
+
+      var section;
+      try {
+        section = document.querySelector(url.hash);
+      } catch (e) {
+        return;
+      }
+      if (!section) return;
+
+      owned.push(link);
+      map.set(section, link);
     });
+
     if (!map.size) return;
 
     var visible = new Map();
@@ -337,8 +542,11 @@
     var observer = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting) visible.set(entry.target, entry.intersectionRatio);
-          else visible.delete(entry.target);
+          if (entry.isIntersecting) {
+            visible.set(entry.target, entry.intersectionRatio);
+          } else {
+            visible.delete(entry.target);
+          }
         });
 
         var best = null;
@@ -350,7 +558,9 @@
           }
         });
 
-        links.forEach(function (link) {
+        /* Clear only the links this spy owns, so a current-page link
+           marked by initCurrentPage is never stripped. */
+        owned.forEach(function (link) {
           link.classList.remove("is-current");
         });
         if (best && map.has(best)) map.get(best).classList.add("is-current");
@@ -364,7 +574,7 @@
   }
 
   /* ------------------------------------------------------------------------
-     5. Mobile menu
+     6. Mobile menu
      ------------------------------------------------------------------------ */
 
   var menuOpen = false;
@@ -485,7 +695,7 @@
   }
 
   /* ------------------------------------------------------------------------
-     6. Cursor light + magnetic CTAs  (fine pointers only)
+     7. Cursor light + magnetic CTAs  (fine pointers only)
      ------------------------------------------------------------------------ */
 
   function initSpotlight() {
@@ -531,9 +741,7 @@
   function initMagnetic() {
     if (!finePointer.matches || !motionOK()) return;
 
-    var targets = document.querySelectorAll("[data-magnetic]");
-
-    targets.forEach(function (el) {
+    document.querySelectorAll("[data-magnetic]").forEach(function (el) {
       var raf = null;
       var x = 0;
       var y = 0;
@@ -555,29 +763,22 @@
         if (!raf) raf = requestAnimationFrame(apply);
       });
 
-      el.addEventListener("pointerleave", function () {
+      function settle() {
         x = 0;
         y = 0;
         if (!raf) raf = requestAnimationFrame(apply);
-      });
+      }
 
-      el.addEventListener("blur", function () {
-        x = 0;
-        y = 0;
-        if (!raf) raf = requestAnimationFrame(apply);
-      });
+      el.addEventListener("pointerleave", settle);
+      el.addEventListener("blur", settle);
     });
   }
 
   /* ------------------------------------------------------------------------
-     7. Scroll choreography (GSAP ScrollTrigger)
+     8. Scroll choreography (GSAP ScrollTrigger)
      ------------------------------------------------------------------------ */
 
-  var PARALLAX = {
-    hero: 8,
-    mid: 6,
-    slow: 3.5
-  };
+  var PARALLAX = { hero: 8, mid: 6, slow: 3.5 };
 
   function initScroll() {
     if (!hasST || !motionOK()) return;
@@ -586,7 +787,7 @@
 
     var mm = window.gsap.matchMedia();
 
-    /* --- Level 3: the introduction rises over the hero ------------------- */
+    /* --- Level 3: the next chapter rises over the hero ------------------- */
     var hero = document.getElementById("hero");
     if (hero) {
       window.gsap.to(hero, {
@@ -652,7 +853,7 @@
 
     /* --- Level 2: line work in "How we think" ---------------------------
        Only where the browser cannot do it natively via animation-timeline. */
-    if (!sda) {
+    if (!sda && document.querySelector(".stages")) {
       mm.add("(min-width: 1021px)", function () {
         var fill = document.querySelector(".stages__fill");
         var stages = document.querySelector(".stages");
@@ -709,12 +910,14 @@
   }
 
   /* ------------------------------------------------------------------------
-     8. Boot
+     9. Boot
      ------------------------------------------------------------------------ */
 
   function boot() {
     initLenis();
     initAnchors();
+    initPageshow();
+    initCurrentPage();
     initReveals();
     initHeader();
     initScrollSpy();
@@ -734,7 +937,7 @@
         lenis.destroy();
         lenis = null;
       }
-      body.classList.remove("has-spotlight");
+      body.classList.remove("has-spotlight", "is-leaving", "is-arriving");
 
       if (hasST) {
         window.ScrollTrigger.getAll().forEach(function (t) {
@@ -752,6 +955,9 @@
       if (hero) hero.style.visibility = "";
 
       document.querySelectorAll("[data-reveal]").forEach(function (el) {
+        el.classList.add("is-in");
+      });
+      document.querySelectorAll(".finale, .story__media").forEach(function (el) {
         el.classList.add("is-in");
       });
       settleStaticLinework();

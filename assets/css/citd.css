@@ -2013,6 +2013,277 @@ body.has-spotlight.on-light .spotlight {
 }
 
 /* --------------------------------------------------------------------------
+   24b. Direct contact — phone, email, WhatsApp
+   -------------------------------------------------------------------------- */
+
+/* A restrained line of real contact details under a section CTA */
+.contact-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px clamp(14px, 1.6vw, 22px);
+  margin-top: clamp(26px, 3.4vw, 40px);
+  color: var(--on-dark-2);
+}
+
+.contact-line__sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.contact-link {
+  position: relative;
+  white-space: nowrap;
+  transition: color var(--t-fast) var(--e-soft);
+}
+
+.contact-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s var(--e-out);
+}
+
+.contact-link:hover,
+.contact-link:focus-visible {
+  color: var(--on-dark);
+}
+
+.contact-link:hover::after,
+.contact-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Footer contact group */
+.footer__col--contact ul {
+  gap: 9px;
+}
+
+.footer__col--contact a {
+  white-space: nowrap;
+}
+
+/* Floating WhatsApp affordance. Restrained, hairline, no green blob;
+   it stays out of the way until the hero has been passed. */
+.whatsapp {
+  position: fixed;
+  right: clamp(16px, 2vw, 30px);
+  bottom: clamp(16px, 2vw, 30px);
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 17px;
+  color: var(--on-dark);
+  background: rgba(9, 9, 9, 0.74);
+  border: 1px solid var(--hair-on-dark-2);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: opacity 0.6s var(--e-out), transform 0.6s var(--e-out),
+    visibility 0.6s, background 0.4s var(--e-soft),
+    border-color 0.4s var(--e-soft), color 0.4s var(--e-soft);
+}
+
+/* Without JS it is simply always available. With JS it waits until the
+   visitor has moved past the hero, and steps aside at the footer. */
+.js .whatsapp {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 14px, 0);
+}
+
+.js body.show-whatsapp .whatsapp {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.whatsapp:hover,
+.whatsapp:focus-visible {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+
+.whatsapp__icon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   24c. Page transition veil
+   -------------------------------------------------------------------------- */
+
+.page-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  background: var(--ink-deep);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.42s var(--e-soft), visibility 0.42s;
+}
+
+body.is-leaving .page-veil {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Arrival: a short fade, never a loading screen.
+   Opacity only — a transform on <main> would break the sticky hero. */
+.js body.is-arriving main,
+.js body.is-arriving .site-footer {
+  animation: page-in 0.55s var(--e-soft) both;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   24d. Journal page
+   -------------------------------------------------------------------------- */
+
+/* Pages with no hero start behind the header, so they get top clearance */
+.page-top {
+  padding-top: calc(var(--header-h) + clamp(46px, 9vh, 118px));
+}
+
+.jhead {
+  position: relative;
+  background: var(--ink);
+  color: var(--on-dark);
+  padding-bottom: clamp(52px, 8vh, 104px);
+  overflow: hidden;
+}
+
+.jhead__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(28px, 5vw, 90px);
+  align-items: end;
+}
+
+.jhead__kicker {
+  color: var(--on-dark);
+  letter-spacing: 0.24em;
+}
+
+.jhead__title {
+  margin-top: clamp(18px, 2.6vw, 34px);
+}
+
+.jhead__lead {
+  max-width: 30ch;
+  color: var(--on-dark);
+}
+
+.jhead__rule {
+  margin-top: clamp(40px, 6vh, 78px);
+}
+
+/* Full-bleed editorial band */
+.jband {
+  position: relative;
+  height: clamp(340px, 82svh, 860px);
+  overflow: hidden;
+  background: var(--ink);
+}
+
+/* A wide band crops hard vertically, so hold the crop on the tabletop
+   where the sketchbook, lantern and apron actually are. */
+.jband .media__img {
+  object-position: 50% 70%;
+}
+
+.jband .media__grade {
+  background: radial-gradient(
+      34% 32% at 40% 58%,
+      rgba(255, 198, 122, 0.2),
+      transparent 66%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(3, 3, 3, 0.42),
+      rgba(3, 3, 3, 0) 42%,
+      rgba(3, 3, 3, 0.62)
+    );
+}
+
+/* Entry index. Renders only once real entries exist. */
+.jentries {
+  background: var(--char);
+  color: var(--on-dark);
+}
+
+.jentries__list {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--hair-on-dark);
+  margin-top: clamp(34px, 5vh, 60px);
+}
+
+.jentry {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(18px, 3vw, 50px);
+  align-items: baseline;
+  padding: clamp(26px, 4vh, 44px) 0;
+  border-bottom: 1px solid var(--hair-on-dark);
+  transition: background 0.5s var(--e-soft);
+}
+
+.jentry:hover {
+  background: rgba(238, 233, 223, 0.028);
+}
+
+.jentry__meta {
+  color: var(--on-dark-3);
+}
+
+.jentry__title {
+  font-size: clamp(22px, 2.4vw, 38px);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.034em;
+  transition: transform 0.5s var(--e-out);
+}
+
+.jentry:hover .jentry__title {
+  transform: translateX(8px);
+}
+
+.jentry__standfirst {
+  max-width: 46ch;
+}
+
+/* Shown while the index is empty, so the page is never broken-looking */
+.jentries:not(:has(.jentry)) {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
    25. Tablet
    -------------------------------------------------------------------------- */
 
@@ -2091,6 +2362,29 @@ body.has-spotlight.on-light .spotlight {
   .gate--bs .gate__body {
     padding: clamp(40px, 7vh, 72px) var(--pad);
     max-width: 60ch;
+  }
+
+  .jhead__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(22px, 4vw, 40px);
+    align-items: start;
+  }
+
+  .jhead__lead {
+    max-width: 34ch;
+  }
+
+  .jband {
+    height: clamp(320px, 58svh, 620px);
+  }
+
+  .jentry {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .jentry__standfirst {
+    grid-column: 2;
+    max-width: 52ch;
   }
 
   /* Stages become a vertical sequence */
@@ -2229,6 +2523,42 @@ body.has-spotlight.on-light .spotlight {
     font-size: 9px;
     letter-spacing: 0.14em;
   }
+
+  /* Contact details stack rather than crowd the edges */
+  .contact-line {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .contact-line__sep {
+    display: none;
+  }
+
+  .jband {
+    height: clamp(300px, 52svh, 460px);
+  }
+
+  .jentry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .jentry__standfirst {
+    grid-column: 1;
+  }
+
+  /* Icon-only WhatsApp on small screens, kept clear of the screen edges */
+  .whatsapp {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .whatsapp__label {
+    display: none;
+  }
 }
 
 @media (max-width: 420px) {
@@ -2329,6 +2659,26 @@ body.has-spotlight.on-light .spotlight {
     transform: none !important;
   }
 
+  /* No page-transition movement, and no arrival animation to sit through */
+  .page-veil {
+    transition: opacity 0.15s linear, visibility 0.15s !important;
+  }
+
+  .js body.is-arriving main,
+  .js body.is-arriving .site-footer {
+    animation: none !important;
+  }
+
+  .whatsapp {
+    transition: opacity 0.2s linear, visibility 0.2s !important;
+    transform: none !important;
+  }
+
+  .jentry__title,
+  .contact-link::after {
+    transition-duration: 0.01ms !important;
+  }
+
   .media__img,
   .cta__arrow,
   .menu-item__label,
@@ -2346,7 +2696,9 @@ body.has-spotlight.on-light .spotlight {
   .spotlight,
   .loader,
   .scroll-cue,
-  .skip-link {
+  .skip-link,
+  .whatsapp,
+  .page-veil {
     display: none !important;
   }
 
